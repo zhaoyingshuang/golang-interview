@@ -1,0 +1,30 @@
+{
+  "name": "golang",
+  "version": "1.0.0",
+  "description": "每个目录包含可运行的代码示例和详细的原理分析。",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "dev": "vitepress dev docs",
+    "build": "vitepress build docs",
+    "preview": "vitepress preview docs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zhaoyingshuang/golang-interview.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/zhaoyingshuang/golang-interview/issues"
+  },
+  "homepage": "https://github.com/zhaoyingshuang/golang-interview#readme",
+  "devDependencies": {
+    "vitepress": "^1.6.4",
+    "vue": "^3.5.35"
+  }
+}

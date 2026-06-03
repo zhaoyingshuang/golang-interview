@@ -4,6 +4,13 @@
 server
 golang-interview-web
 
+# Node
+node_modules/
+
+# VitePress
+docs/.vitepress/dist
+docs/.vitepress/cache
+
 # OS
 .DS_Store
 
