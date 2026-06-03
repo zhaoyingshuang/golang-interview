@@ -1,0 +1,13 @@
+# Binaries
+/tmp/
+*.exe
+server
+golang-interview-web
+
+# OS
+.DS_Store
+
+# IDE
+.idea/
+.vscode/
+*.swp

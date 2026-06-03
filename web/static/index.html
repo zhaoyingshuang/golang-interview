@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Go 面试知识点</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/go.min.js"></script>
+    <style>
+        :root {
+            --bg: #0f1117;
+            --bg-sidebar: #161822;
+            --bg-card: #1c1f2e;
+            --bg-code: #0d1117;
+            --fg: #e2e8f0;
+            --fg-muted: #8b95a8;
+            --fg-dim: #5a6378;
+            --accent: #60a5fa;
+            --accent2: #818cf8;
+            --accent3: #34d399;
+            --border: #2a2f42;
+            --hover: #232740;
+            --tag-basics: #f59e0b;
+            --tag-concurrency: #60a5fa;
+            --tag-memory: #a78bfa;
+            --tag-perf: #34d399;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Noto Sans SC', -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--fg);
+            line-height: 1.7;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        .app {
+            display: flex;
+            height: 100vh;
+        }
+
+        /* ===== Sidebar ===== */
+        .sidebar {
+            width: 280px;
+            min-width: 280px;
+            background: var(--bg-sidebar);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        .sidebar-header {
+            padding: 24px 20px 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .sidebar-header h1 {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--fg);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sidebar-header h1 .go-icon {
+            width: 28px;
+            height: 28px;
+            background: linear-gradient(135deg, #00add8, #007d9c);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .sidebar-search {
+            margin-top: 12px;
+            position: relative;
+        }
+
+        .sidebar-search input {
+            width: 100%;
+            padding: 8px 12px 8px 34px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--fg);
+            font-size: 13px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .sidebar-search input:focus {
+            border-color: var(--accent);
+        }
+
+        .sidebar-search input::placeholder { color: var(--fg-dim); }
+
+        .sidebar-search .search-icon {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--fg-dim);
+            font-size: 14px;
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            overflow-y: auto;
+            padding: 12px 0;
+        }
+
+        .sidebar-nav::-webkit-scrollbar { width: 4px; }
+        .sidebar-nav::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+        .nav-group { margin-bottom: 8px; }
+
+        .nav-group-title {
+            padding: 6px 20px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--fg-dim);
+        }
+
+        .nav-item {
+            padding: 8px 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.15s;
+            border-left: 3px solid transparent;
+            font-size: 14px;
+        }
+
+        .nav-item:hover {
+            background: var(--hover);
+        }
+
+        .nav-item.active {
+            background: var(--hover);
+            border-left-color: var(--accent);
+            color: #fff;
+        }
+
+        .nav-item .tag {
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 500;
+            flex-shrink: 0;
+        }
+
+        .tag-basics { background: rgba(245,158,11,0.15); color: var(--tag-basics); }
+        .tag-concurrency { background: rgba(96,165,250,0.15); color: var(--tag-concurrency); }
+        .tag-memory { background: rgba(167,139,250,0.15); color: var(--tag-memory); }
+        .tag-perf { background: rgba(52,211,153,0.15); color: var(--tag-perf); }
+
+        /* ===== Main Content ===== */
+        .main {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0;
+        }
+
+        .main::-webkit-scrollbar { width: 6px; }
+        .main::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+        .content-wrapper {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 48px 80px;
+        }
+
+        .content-header {
+            margin-bottom: 36px;
+        }
+
+        .content-header .breadcrumb {
+            font-size: 13px;
+            color: var(--fg-dim);
+            margin-bottom: 8px;
+        }
+
+        .content-header h2 {
+            font-size: 32px;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        /* ===== Section Cards ===== */
+        .section-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            margin-bottom: 24px;
+            overflow: hidden;
+            transition: border-color 0.2s;
+        }
+
+        .section-card:hover {
+            border-color: var(--accent);
+        }
+
+        .section-card-header {
+            padding: 20px 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            user-select: none;
+        }
+
+        .section-card-header .num {
+            width: 28px;
+            height: 28px;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: 700;
+            color: #fff;
+            flex-shrink: 0;
+        }
+
+        .section-card-header h3 {
+            font-size: 17px;
+            font-weight: 600;
+            color: var(--fg);
+            flex: 1;
+        }
+
+        .section-card-header .arrow {
+            color: var(--fg-dim);
+            transition: transform 0.2s;
+            font-size: 14px;
+        }
+
+        .section-card.open .section-card-header .arrow {
+            transform: rotate(180deg);
+        }
+
+        .section-card-body {
+            display: none;
+            padding: 0 24px 24px;
+        }
+
+        .section-card.open .section-card-body {
+            display: block;
+        }
+
+        .section-content {
+            font-size: 15px;
+            color: var(--fg);
+            line-height: 1.9;
+            margin-bottom: 20px;
+        }
+
+        .section-content p {
+            margin-bottom: 12px;
+        }
+
+        .section-content p:last-child {
+            margin-bottom: 0;
+        }
+
+        .section-content strong {
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        .section-content .tag {
+            display: inline-block;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 1px 8px;
+            border-radius: 4px;
+            margin: 0 2px;
+            vertical-align: middle;
+        }
+
+        .section-content .tag-scene {
+            background: rgba(96,165,250,0.15);
+            color: #60a5fa;
+        }
+
+        .section-content .tag-prod {
+            background: rgba(52,211,153,0.15);
+            color: #34d399;
+        }
+
+        .section-content .tag-interview {
+            background: rgba(251,146,60,0.15);
+            color: #fb923c;
+        }
+
+        .section-content .tag-tip {
+            background: rgba(167,139,250,0.15);
+            color: #a78bfa;
+        }
+
+        .section-content .tag-warn {
+            background: rgba(248,113,113,0.15);
+            color: #f87171;
+        }
+
+        /* ===== Code Block ===== */
+        .code-block {
+            background: var(--bg-code);
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+
+        .code-block-header {
+            padding: 8px 16px;
+            background: rgba(255,255,255,0.03);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .code-block-header span {
+            font-size: 12px;
+            color: var(--fg-dim);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .copy-btn {
+            background: none;
+            border: 1px solid var(--border);
+            color: var(--fg-dim);
+            padding: 3px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.15s;
+        }
+
+        .copy-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .code-block pre {
+            margin: 0;
+            padding: 16px;
+            overflow-x: auto;
+        }
+
+        .code-block code {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        /* ===== Welcome ===== */
+        .welcome {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 60vh;
+            text-align: center;
+        }
+
+        .welcome-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #00add8, #007d9c);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            margin-bottom: 24px;
+        }
+
+        .welcome h2 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 12px;
+        }
+
+        .welcome p {
+            color: var(--fg-muted);
+            font-size: 16px;
+            max-width: 500px;
+        }
+
+        .welcome .stats {
+            display: flex;
+            gap: 32px;
+            margin-top: 32px;
+        }
+
+        .welcome .stat {
+            text-align: center;
+        }
+
+        .welcome .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .welcome .stat-label {
+            font-size: 13px;
+            color: var(--fg-dim);
+            margin-top: 4px;
+        }
+
+        /* ===== Progress Bar ===== */
+        .progress-bar {
+            height: 3px;
+            background: var(--border);
+            position: relative;
+        }
+
+        .progress-bar .fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), var(--accent2));
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        /* ===== Responsive ===== */
+        @media (max-width: 768px) {
+            .sidebar { width: 220px; min-width: 220px; }
+            .content-wrapper { padding: 24px 20px 60px; }
+            .content-header h2 { font-size: 24px; }
+        }
+
+        /* ===== Highlight overrides ===== */
+        .hljs { background: transparent !important; }
+
+        /* ===== Keyboard shortcut hint ===== */
+        .kbd-hint {
+            padding: 12px 20px;
+            border-top: 1px solid var(--border);
+            font-size: 11px;
+            color: var(--fg-dim);
+        }
+
+        .kbd-hint kbd {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 3px;
+            padding: 1px 5px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+        }
+    </style>
+</head>
+<body>
+<div class="app">
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h1>
+                <span class="go-icon">Go</span>
+                面试知识点
+            </h1>
+            <div class="sidebar-search">
+                <span class="search-icon">&#128269;</span>
+                <input type="text" id="searchInput" placeholder="搜索知识点..." autocomplete="off">
+            </div>
+        </div>
+        <div class="progress-bar"><div class="fill" id="progressFill"></div></div>
+        <nav class="sidebar-nav" id="sidebarNav"></nav>
+        <div class="kbd-hint">
+            <kbd>&#8593;</kbd> <kbd>&#8595;</kbd> 导航 &nbsp; <kbd>Enter</kbd> 打开 &nbsp; <kbd>/</kbd> 搜索
+        </div>
+    </div>
+    <main class="main" id="mainContent">
+        <div class="welcome" id="welcome">
+            <div class="welcome-icon">Go</div>
+            <h2>Golang 面试知识点深度解析</h2>
+            <p>从底层原理到实战技巧，涵盖 16 个核心主题</p>
+            <div class="stats">
+                <div class="stat">
+                    <div class="stat-value">16</div>
+                    <div class="stat-label">知识主题</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value">4</div>
+                    <div class="stat-label">章节</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value">60+</div>
+                    <div class="stat-label">核心知识点</div>
+                </div>
+            </div>
+        </div>
+        <div class="content-wrapper" id="contentArea" style="display:none"></div>
+    </main>
+</div>
+
+<script>
+const chapters = {
+    '01-basics': { label: '基础篇', tag: 'tag-basics' },
+    '02-concurrency': { label: '并发篇', tag: 'tag-concurrency' },
+    '03-memory': { label: '内存篇', tag: 'tag-memory' },
+    '04-performance': { label: '性能篇', tag: 'tag-perf' },
+};
+
+let topics = [];
+let currentTopic = null;
+let visitedTopics = new Set();
+
+async function init() {
+    const res = await fetch('/api/topics');
+    topics = await res.json();
+
+    const nav = document.getElementById('sidebarNav');
+    let html = '';
+    let lastChapter = '';
+
+    topics.forEach((t, i) => {
+        if (t.chapter !== lastChapter) {
+            const ch = chapters[t.chapter];
+            html += `<div class="nav-group"><div class="nav-group-title">${ch.label}</div>`;
+            lastChapter = t.chapter;
+        }
+        const ch = chapters[t.chapter];
+        html += `<div class="nav-item" data-id="${t.id}" onclick="loadTopic('${t.id}')">
+            <span class="tag ${ch.tag}">${t.id}</span>
+            ${t.title}
+        </div>`;
+        // Close previous group
+        if (i < topics.length - 1 && topics[i+1].chapter !== t.chapter) {
+            html += '</div>';
+        }
+    });
+    if (!html.endsWith('</div>')) html += '</div>';
+    nav.innerHTML = html;
+
+    // Hash routing
+    if (location.hash) {
+        loadTopic(location.hash.slice(1));
+    }
+}
+
+async function loadTopic(id) {
+    const topic = topics.find(t => t.id === id);
+    if (!topic) return;
+
+    currentTopic = id;
+    visitedTopics.add(id);
+    updateProgress();
+
+    // Update active state
+    document.querySelectorAll('.nav-item').forEach(el => {
+        el.classList.toggle('active', el.dataset.id === id);
+    });
+
+    history.replaceState(null, '', '#' + id);
+
+    // Fetch full topic data
+    const res = await fetch(`/api/topic/${id}`);
+    const data = await res.json();
+
+    const ch = chapters[data.chapter];
+    document.getElementById('welcome').style.display = 'none';
+    const area = document.getElementById('contentArea');
+    area.style.display = 'block';
+
+    area.innerHTML = `
+        <div class="content-header">
+            <div class="breadcrumb">${ch.label} / ${data.id}</div>
+            <h2>${data.title}</h2>
+        </div>
+        ${data.sections.map((s, i) => `
+            <div class="section-card ${i === 0 ? 'open' : ''}">
+                <div class="section-card-header" onclick="toggleSection(this)">
+                    <span class="num">${i + 1}</span>
+                    <h3>${s.title}</h3>
+                    <span class="arrow">&#9660;</span>
+                </div>
+                <div class="section-card-body">
+                    <div class="section-content">${formatContent(s.content)}</div>
+                    ${s.code ? `
+                    <div class="code-block">
+                        <div class="code-block-header">
+                            <span>Go</span>
+                            <button class="copy-btn" onclick="copyCode(this)">复制</button>
+                        </div>
+                        <pre><code class="language-go">${escapeHtml(s.code)}</code></pre>
+                    </div>` : ''}
+                </div>
+            </div>
+        `).join('')}
+    `;
+
+    // Highlight code
+    area.querySelectorAll('pre code').forEach(block => {
+        hljs.highlightElement(block);
+    });
+
+    // Scroll to top
+    document.querySelector('.main').scrollTop = 0;
+}
+
+function toggleSection(header) {
+    header.closest('.section-card').classList.toggle('open');
+}
+
+function formatContent(text) {
+    // Normalize whitespace
+    text = text.replace(/\n/g, ' ').replace(/\s+/g, ' ').trim();
+
+    // Insert paragraph breaks before **Keyword** patterns
+    // e.g. "...some text。**使用场景**..." → "...some text。\n\n**使用场景**..."
+    text = text.replace(/([。！？])\s*(\*\*)/g, '$1\n\n$2');
+    // Also break before ** at start of major sections
+    text = text.replace(/([；;])\s*(\*\*)/g, '$1\n\n$2');
+
+    // Split into paragraphs
+    const paragraphs = text.split(/\n\n+/);
+
+    return paragraphs.map(para => {
+        para = para.trim();
+        if (!para) return '';
+
+        // **bold** → <strong>
+        para = para.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+
+        // Convert keyword bold tags into styled badges
+        const tagMap = [
+            [/使用场景/g, 'tag-scene'],
+            [/生产场景/g, 'tag-scene'],
+            [/生产建议/g, 'tag-prod'],
+            [/生产影响/g, 'tag-prod'],
+            [/生产选择/g, 'tag-prod'],
+            [/生产坑.*?/g, 'tag-warn'],
+            [/面试追问/g, 'tag-interview'],
+            [/面试必记.*?/g, 'tag-interview'],
+            [/面试高频.*?/g, 'tag-interview'],
+            [/面试经典.*?/g, 'tag-interview'],
+            [/最佳实践/g, 'tag-tip'],
+            [/正确做法/g, 'tag-tip'],
+            [/为什么.*?/g, 'tag-tip'],
+        ];
+        tagMap.forEach(([pattern, cls]) => {
+            const re = new RegExp('<strong>(' + pattern.source + ')<\\/strong>', 'g');
+            para = para.replace(re, '<span class="tag ' + cls + '">$1</span>');
+        });
+
+        return '<p>' + para + '</p>';
+    }).join('');
+}
+
+function escapeHtml(str) {
+    return str.replace(/&/g, '&amp;')
+              .replace(/</g, '&lt;')
+              .replace(/>/g, '&gt;');
+}
+
+function copyCode(btn) {
+    const code = btn.closest('.code-block').querySelector('code').textContent;
+    navigator.clipboard.writeText(code).then(() => {
+        btn.textContent = '已复制';
+        setTimeout(() => btn.textContent = '复制', 1500);
+    });
+}
+
+function updateProgress() {
+    const pct = (visitedTopics.size / topics.length) * 100;
+    document.getElementById('progressFill').style.width = pct + '%';
+}
+
+// Search
+document.getElementById('searchInput').addEventListener('input', function() {
+    const q = this.value.toLowerCase();
+    document.querySelectorAll('.nav-item').forEach(el => {
+        const text = el.textContent.toLowerCase();
+        el.style.display = text.includes(q) ? '' : 'none';
+    });
+});
+
+// Keyboard navigation
+document.addEventListener('keydown', function(e) {
+    if (e.key === '/') {
+        e.preventDefault();
+        document.getElementById('searchInput').focus();
+    }
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+        const items = [...document.querySelectorAll('.nav-item')].filter(el => el.style.display !== 'none');
+        const activeIdx = items.findIndex(el => el.classList.contains('active'));
+        let next;
+        if (e.key === 'ArrowDown') {
+            next = activeIdx < items.length - 1 ? activeIdx + 1 : 0;
+        } else {
+            next = activeIdx > 0 ? activeIdx - 1 : items.length - 1;
+        }
+        items[next]?.click();
+        items[next]?.scrollIntoView({ block: 'nearest' });
+    }
+});
+
+init();
+</script>
+</body>
+</html>
