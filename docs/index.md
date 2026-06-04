@@ -32,6 +32,34 @@ GMP 调度模型、Channel、Sync 原语、Context、并发设计模式
 
 pprof 性能分析、Benchmark 基准测试与优化实战
 
+### [Web 框架](/webframework/router)
+
+路由树原理、中间件洋葱模型、参数绑定、RESTful 设计、错误处理
+
+### [数据库](/database/mysql-index)
+
+MySQL 索引/事务/锁、Redis 缓存/分布式锁、Go database/sql、GORM
+
+### [微服务](/microservice/grpc)
+
+gRPC、服务注册发现、链路追踪、限流熔断降级、配置管理
+
+### [系统设计](/systemdesign/mq)
+
+消息队列、限流设计、高可用架构、CAP 理论、分布式一致性算法
+
+### [算法](/algorithm/sorting)
+
+排序、二分查找、哈希表、树、动态规划、Go 标准库算法
+
+### [网络](/network/tcp)
+
+TCP/IP、HTTP/2/3、HTTPS/TLS、Go net/http 源码、WebSocket
+
+### [操作系统](/os/process)
+
+进程/线程/Goroutine、虚拟内存、IO 模型、文件系统、Linux 排查
+
 ## 项目特色
 
 - **底层源码分析** — 每个知识点追溯到 runtime 源码级别
